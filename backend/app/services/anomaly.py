@@ -81,8 +81,18 @@ def _model(dataset: str) -> dict | None:
     return _models[dataset]
 
 
+_scores: dict[tuple, dict | None] = {}
+
+
 def score_engine(track, p50: float) -> dict | None:
-    """IsolationForest score for the latest window of an engine track."""
+    """IsolationForest score for the latest window of an engine track (cached per track state)."""
+    key = (track.dataset, track.unit, len(track.raw), round(float(track.raw.iloc[-1].sum()), 4), round(p50, 1))
+    if key not in _scores:
+        _scores[key] = _score(track, p50)
+    return _scores[key]
+
+
+def _score(track, p50: float) -> dict | None:
     m = _model(track.dataset)
     if m is None:
         return None

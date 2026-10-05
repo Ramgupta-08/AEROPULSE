@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import aircraft, fleet, health, kpi, meta
+from app.api import aircraft, fleet, health, kpi, meta, missions
 from app.core.db import init_db
 
 log = logging.getLogger("aeropulse")
@@ -23,8 +23,11 @@ def _warm_caches() -> None:
     if not rul.models_ready():
         return
     try:
+        from app.api.health import engines
+
         with Session(get_engine()) as s:
             health.fleet(s)
+            engines(session=s)  # SHAP reasons + anomaly scores
     except Exception:  # pragma: no cover - empty or unseeded database
         log.warning("Cache warm-up skipped (database not seeded?)")
 
@@ -52,5 +55,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (meta.router, fleet.router, aircraft.router, aircraft.ws_router, health.router, kpi.router):
+for r in (meta.router, fleet.router, aircraft.router, aircraft.ws_router, health.router, kpi.router, missions.router):
     app.include_router(r)

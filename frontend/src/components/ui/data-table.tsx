@@ -11,11 +11,11 @@ export interface Column<T> {
   align?: "left" | "right" | "center";
   className?: string;
   /** Hide below this breakpoint to keep phone layouts readable. */
-  hideBelow?: "sm" | "md" | "lg" | "xl";
+  hideBelow?: "sm" | "md" | "lg" | "xl" | "2xl";
   width?: string;
 }
 
-const hideClass = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell", xl: "hidden xl:table-cell" };
+const hideClass = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell", xl: "hidden xl:table-cell", "2xl": "hidden 2xl:table-cell" };
 
 export function DataTable<T>({
   rows,

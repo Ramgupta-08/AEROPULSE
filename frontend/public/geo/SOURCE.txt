@@ -1,0 +1,2 @@
+States GeoJSON: DataMeet community maps (Survey of India boundaries), https://github.com/datameet/maps — licensed CC BY 4.0.
+Simplified with mapshaper for offline use.

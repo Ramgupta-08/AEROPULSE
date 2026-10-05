@@ -58,30 +58,30 @@ export function KpiTile({
   return (
     <div className={cn("card flex min-w-0 flex-col justify-between gap-2 p-4", className)} title={hint}>
       <p className="label truncate">{label}</p>
-      <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-semibold tracking-tight text-strong tnum">{shown}</span>
-        {unit && <span className="text-sm text-subtle">{unit}</span>}
-      </div>
-      <div className="flex items-end justify-between gap-3">
-        {delta != null ? (
-          <span
-            className={cn("inline-flex items-center gap-0.5 text-xs font-medium tnum", good === null ? "text-subtle" : good ? "text-ready" : "text-grounded")}
-            aria-label={`Change versus last week ${delta}${deltaUnit}`}
-          >
-            <DeltaIcon size={13} strokeWidth={2} aria-hidden />
-            {Math.abs(delta).toFixed(digits === 0 && Number.isInteger(delta) ? 0 : 1)}
-            {deltaUnit}
-            <span className="ml-1 font-normal text-subtle">vs last wk</span>
-          </span>
-        ) : (
-          <span />
-        )}
+      <div className="flex items-end justify-between gap-2">
+        <div className="flex min-w-0 items-baseline gap-1">
+          <span className="text-2xl font-semibold tracking-tight text-strong tnum">{shown}</span>
+          {unit && <span className="shrink-0 text-sm text-subtle">{unit}</span>}
+        </div>
         {spark && spark.length > 1 && (
-          <div className="w-20 shrink-0">
-            <Sparkline data={spark} tone={tone} ariaLabel={`${label} trend`} height={28} />
+          <div className="mb-1 w-16 min-w-0 shrink">
+            <Sparkline data={spark} tone={tone} ariaLabel={`${label} trend`} height={26} />
           </div>
         )}
       </div>
+      {delta != null ? (
+        <span
+          className={cn("inline-flex items-center gap-0.5 whitespace-nowrap text-xs font-medium tnum", good === null ? "text-subtle" : good ? "text-ready" : "text-grounded")}
+          aria-label={`Change versus last week ${delta}${deltaUnit}`}
+        >
+          <DeltaIcon size={13} strokeWidth={2} aria-hidden />
+          {Math.abs(delta).toFixed(digits === 0 && Number.isInteger(delta) ? 0 : 1)}
+          {deltaUnit}
+          <span className="ml-1 font-normal text-subtle">vs last week</span>
+        </span>
+      ) : (
+        <span className="text-xs text-subtle">&nbsp;</span>
+      )}
     </div>
   );
 }

@@ -18,6 +18,10 @@
   --info: 90 169 230; /* #5AA9E6 */
   --chart-grid: 35 42 54;
   --focus: 76 141 255;
+  /* categorical series (validated for CVD on this surface) */
+  --series-1: 57 135 229; /* #3987e5 */
+  --series-2: 217 89 38; /* #d95926 */
+  --series-3: 25 158 112; /* #199e70 */
 }
 
 [data-theme="light"] {
@@ -38,4 +42,7 @@
   --info: 30 118 184; /* #1E76B8 */
   --chart-grid: 227 231 237;
   --focus: 47 111 224;
+  --series-1: 42 120 214; /* #2a78d6 */
+  --series-2: 235 104 52; /* #eb6834 */
+  --series-3: 27 175 122; /* #1baf7a */
 }

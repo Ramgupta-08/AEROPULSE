@@ -5,7 +5,7 @@ import math
 from datetime import timedelta
 
 import numpy as np
-from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from sqlmodel import Session, func, select
 
@@ -135,8 +135,44 @@ def _one(session: Session, tail: str, day_offset: int = 0) -> H.AircraftHealth:
     return H.aircraft_health(a, session.get(Base, a.base_id), list(comps), wo, H.as_of(session), day_offset)
 
 
+@router.get("/aircraft/export.pdf", dependencies=[Depends(require("fleet"))])
+def export_fleet_pdf(base_id: str | None = None, session: Session = Depends(get_session)) -> Response:
+    from app.services import pdf
+
+    rows = list_aircraft(base_id=base_id, session=session)
+    data = [["Tail", "Type", "Base", "Squadron", "Status", "Health", "Lowest RUL", "Next due", "Defects 30d", "Hours"]]
+    for r in rows:
+        data.append(
+            [
+                r.tail,
+                r.type,
+                r.base_name,
+                r.squadron,
+                r.status.capitalize(),
+                f"{r.health:.0f}",
+                f"{r.lowest_component}: {r.lowest_rul_label}",
+                f"{r.next_due_component} in {max(0, r.next_due_days):.0f} d",
+                r.defects_30d,
+                f"{r.total_hours:,.0f}",
+            ]
+        )
+    as_of = H.as_of(session)
+    body = pdf.build(
+        "Fleet status",
+        f"As of {as_of:%d %b %Y} · {len(rows)} aircraft{' · base ' + base_id if base_id else ''}",
+        [pdf.table(data, status_col=4)],
+        landscape_mode=True,
+    )
+    return Response(
+        body,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="aeropulse-fleet.pdf"'},
+    )
+
+
 class RecordOut(BaseModel):
     id: int
+    tail: str
     date: str
     record_type: str
     defect_code: str
@@ -153,6 +189,7 @@ class RecordOut(BaseModel):
 def _record(r: MaintenanceRecord) -> RecordOut:
     return RecordOut(
         id=r.id,
+        tail=r.tail,
         date=r.date.isoformat(),
         record_type=r.record_type,
         defect_code=r.defect_code,

@@ -18,6 +18,7 @@ export default defineConfig({
       "/ws": { target: api.replace("http", "ws"), ws: true },
     },
   },
+  optimizeDeps: { exclude: ["maplibre-gl"] },
   build: { chunkSizeWarningLimit: 2500 },
   test: { environment: "jsdom", globals: true, setupFiles: ["./src/test-setup.ts"], include: ["src/**/*.test.{ts,tsx}"] },
 });

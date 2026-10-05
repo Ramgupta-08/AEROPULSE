@@ -40,3 +40,6 @@ export function StatusPill({ tone, label, className, iconOnly }: { tone: Tone; l
 export function toneForHealth(score: number): Tone {
   return score >= 75 ? "ready" : score >= 50 ? "caution" : "grounded";
 }
+
+/** Labels for component condition (an individual part is never "grounded"; its aircraft may be). */
+export const COMPONENT_TONE_LABEL = { ready: "Healthy", caution: "Watch", grounded: "Critical" } as const;

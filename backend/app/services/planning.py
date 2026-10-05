@@ -291,12 +291,15 @@ def counts(
     return res
 
 
-def mission_demand(state: PlanState, day: int, aircraft_type: str | None = None) -> int:
+def mission_demand(state: PlanState, day: int, aircraft_type: str | None = None, base_id: str | None = None) -> int:
+    """Aircraft required on a day. With a base filter only that base's own missions count."""
     dd = state.as_of + timedelta(days=day)
     return sum(
         m.required_count
         for m in state.missions
-        if m.start_date <= dd <= m.end_date and (aircraft_type is None or m.aircraft_type == aircraft_type)
+        if m.start_date <= dd <= m.end_date
+        and (aircraft_type is None or m.aircraft_type == aircraft_type)
+        and (base_id is None or (m.scope == "base" and m.base_id == base_id))
     )
 
 
@@ -440,7 +443,9 @@ def active_plan(session: Session, plan: str = "aeropulse") -> list[dict]:
     ]
 
 
-def forecast(state: PlanState, blocks: list[dict] | None, days: int = FORECAST_DAYS) -> dict:
+def forecast(
+    state: PlanState, blocks: list[dict] | None, days: int = FORECAST_DAYS, base_id: str | None = None
+) -> dict:
     """MC per day (central P50 failures, band from P10 / P90 failure timing), per type, plus demand."""
     series = {}
     for q in ("p10", "p50", "p90"):
@@ -449,12 +454,16 @@ def forecast(state: PlanState, blocks: list[dict] | None, days: int = FORECAST_D
     out = {"days": [(state.as_of + timedelta(days=d)).isoformat() for d in range(days)], "types": {}}
     for typ in [None, *D.TYPES]:
         key = typ or "all"
-        lo = counts(state, series["p10"], days, typ)
-        mid = counts(state, series["p50"], days, typ)
-        hi = counts(state, series["p90"], days, typ)
-        demand = [mission_demand(state, d, typ) for d in range(days)]
+        lo = counts(state, series["p10"], days, typ, base_id)
+        mid = counts(state, series["p50"], days, typ, base_id)
+        hi = counts(state, series["p90"], days, typ, base_id)
+        demand = [mission_demand(state, d, typ, base_id) for d in range(days)]
         out["types"][key] = {
-            "total": sum(1 for ah in state.fleet if typ is None or ah.aircraft.type == typ),
+            "total": sum(
+                1
+                for ah in state.fleet
+                if (typ is None or ah.aircraft.type == typ) and (not base_id or ah.aircraft.base_id == base_id)
+            ),
             "p50": mid,
             "low": [min(a, b) for a, b in zip(lo, mid, strict=True)],
             "high": [max(a, b) for a, b in zip(hi, mid, strict=True)],

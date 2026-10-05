@@ -26,7 +26,12 @@ const PAGES = [
   ["datahub", "/datahub", "engineering_officer"],
   ["reports", "/reports", "engineering_officer"],
   ["settings", "/settings", "engineering_officer"],
-].filter(([, p]) => !only || p === only);
+  // Secondary states: tabs and drawers
+  ["health-model", "/health?tab=model", "engineering_officer"],
+  ["health-anomalies", "/health?tab=anomalies", "engineering_officer"],
+  ["aircraft-drawer", "/aircraft/AP-112", "engineering_officer", async (p) => p.getByRole("button", { name: /^Engine 2:/ }).first().click()],
+  ["fleet-grid", "/fleet", "engineering_officer", async (p) => p.getByRole("radio", { name: "Grid view" }).click()],
+].filter(([, p]) => !only || p.split("?")[0] === only);
 
 const VIEWPORTS = smoke
   ? [["desktop", 1440, 900]]
@@ -42,7 +47,7 @@ const failures = [];
 for (const theme of THEMES) {
   for (const [vp, w, h] of VIEWPORTS) {
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, reducedMotion: "reduce" });
-    for (const [name, route, role] of PAGES) {
+    for (const [name, route, role, act] of PAGES) {
       const page = await ctx.newPage();
       const errors = [];
       page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
@@ -53,9 +58,18 @@ for (const theme of THEMES) {
       );
       await page.goto(BASE + route, { waitUntil: "networkidle" });
       await page.waitForTimeout(900);
+      if (act) {
+        await act(page);
+        await page.waitForTimeout(1200);
+      }
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       if (overflow > 1) errors.push(`horizontal overflow ${overflow}px`);
-      if (!smoke) await page.screenshot({ path: path.join(OUT, `${name}-${vp}-${theme}.png`), fullPage: true });
+      if (!smoke) {
+        // The app scrolls inside <main>; unlock it so the full page is captured.
+        await page.addStyleTag({ content: "html,body,#root,#root>div{height:auto!important} main{overflow:visible!important}" });
+        await page.waitForTimeout(900);
+        await page.screenshot({ path: path.join(OUT, `${name}-${vp}-${theme}.png`), fullPage: true });
+      }
       if (errors.length) failures.push(`${name} [${vp}/${theme}]: ${errors.join(" | ")}`);
       console.log(`${errors.length ? "✗" : "✓"} ${name.padEnd(9)} ${vp}/${theme}`);
       await page.close();

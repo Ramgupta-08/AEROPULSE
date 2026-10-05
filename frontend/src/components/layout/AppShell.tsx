@@ -1,12 +1,34 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useMemo, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { NAV } from "@/app/nav";
+import { api } from "@/lib/api";
 import { useHotkeys } from "@/lib/hotkeys";
+import { useMeta } from "@/lib/queries";
+import type { AircraftRow } from "@/lib/types";
 import { useUi } from "@/lib/store";
 import { CommandPalette, usePalette } from "./CommandPalette";
+import { usePaletteExtras } from "./paletteExtras";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+
+/** Feeds the command palette with the aircraft list when the role may see the fleet. */
+function PaletteAircraft() {
+  const { data: meta } = useMeta();
+  const allowed = !!meta?.role.areas.includes("fleet");
+  const setAircraft = usePaletteExtras((s) => s.setAircraft);
+  const { data } = useQuery({
+    queryKey: ["aircraft", "palette", meta?.role.id],
+    queryFn: () => api.get<AircraftRow[]>("/api/aircraft"),
+    enabled: allowed,
+    staleTime: 60_000,
+  });
+  useEffect(() => {
+    setAircraft(allowed && data ? data.map((a) => ({ tail: a.tail, type: a.type, base: a.base_name })) : []);
+  }, [allowed, data, setAircraft]);
+  return null;
+}
 
 export function AppShell({ topBarExtra, overlay }: { topBarExtra?: ReactNode; overlay?: ReactNode }) {
   const navigate = useNavigate();
@@ -46,6 +68,7 @@ export function AppShell({ topBarExtra, overlay }: { topBarExtra?: ReactNode; ov
         </main>
       </div>
       <CommandPalette />
+      <PaletteAircraft />
       {overlay}
     </div>
   );
