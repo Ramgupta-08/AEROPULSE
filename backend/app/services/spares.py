@@ -87,7 +87,7 @@ def inventory(session: Session, state: P.PlanState, base_id: str | None = None) 
                 "status": status,
                 "needs": needs[:6],
                 "first_need_day": needs[0]["need_day"] if needs else None,
-            "inbound_transfers": inbound[(sl.part_number, sl.base_id)],
+                "inbound_transfers": inbound[(sl.part_number, sl.base_id)],
             }
         )
     order = {"shortfall": 0, "transfer": 1, "reorder": 2, "ok": 3}

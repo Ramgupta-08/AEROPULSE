@@ -83,3 +83,17 @@
   from { transform: translateY(6px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #qr-sheet,
+  #qr-sheet * {
+    visibility: visible;
+  }
+  #qr-sheet {
+    position: absolute;
+    inset: 0;
+  }
+}

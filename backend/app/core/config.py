@@ -20,7 +20,7 @@ class Settings:
         default_factory=lambda: os.getenv("AEROPULSE_DB_URL", f"sqlite:///{DATA_DIR / 'aeropulse.db'}")
     )
     anthropic_api_key: str | None = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY") or None)
-    anthropic_model: str = field(default_factory=lambda: os.getenv("AEROPULSE_LLM_MODEL", "claude-sonnet-5-5"))
+    anthropic_model: str = field(default_factory=lambda: os.getenv("AEROPULSE_LLM_MODEL", "claude-opus-5-5"))
     telemetry_hz: float = 2.0
     seed: int = 2026
 

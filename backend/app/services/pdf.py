@@ -53,7 +53,7 @@ def table(rows: list[list], widths: list[float] | None = None, status_col: int |
     ]
     if status_col is not None:
         for i, r in enumerate(rows[1:], start=1):
-            c = STATUS.get(str(r[status_col]).lower())
+            c = STATUS.get(str(r[status_col]).lower().split()[0])
             if c is not None:
                 style.append(("TEXTCOLOR", (status_col, i), (status_col, i), c))
                 style.append(("FONT", (status_col, i), (status_col, i), "Helvetica-Bold", 8))

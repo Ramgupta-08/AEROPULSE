@@ -11,6 +11,9 @@ const only = args.find((a) => a.startsWith("--only="))?.slice(7);
 const themeArg = args.find((a) => a.startsWith("--theme="))?.slice(8);
 const OUT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..", "screenshots");
 
+/** Click and wait for the API call it triggers (wait is registered first, so fast responses aren't missed). */
+const clickAndWait = (page, locator, url) => Promise.all([page.waitForResponse((r) => r.url().includes(url), { timeout: 30000 }), locator.click()]);
+
 const PAGES = [
   ["overview", "/", "engineering_officer"],
   ["fleet", "/fleet", "engineering_officer"],
@@ -30,11 +33,16 @@ const PAGES = [
   ["health-model", "/health?tab=model", "engineering_officer"],
   ["health-anomalies", "/health?tab=anomalies", "engineering_officer"],
   ["aircraft-drawer", "/aircraft/AP-112", "engineering_officer", async (p) => p.getByRole("button", { name: /^Engine 2:/ }).first().click()],
-  ["whatif-run", "/whatif", "engineering_officer", async (p) => { await p.locator('[data-tour="preset-seal"]').click(); await p.waitForResponse((r) => r.url().includes("/api/whatif/run"), { timeout: 30000 }); }],
+  ["whatif-run", "/whatif", "engineering_officer", async (p) => clickAndWait(p, p.locator('[data-tour="preset-seal"]'), "/api/whatif/run")],
   ["missions-coverage", "/missions?focus=M01", "engineering_officer"],
   ["spares-batch", "/spares?tab=batch", "engineering_officer"],
   ["spares-cannibalisation", "/spares?tab=cannibalisation", "engineering_officer"],
   ["spares-transfers", "/spares?tab=transfers", "engineering_officer"],
+  ["copilot-answer", "/copilot", "technician", async (p) => clickAndWait(p, p.getByRole("button", { name: /Hydraulic pressure dropping/ }), "/api/copilot/ask")],
+  ["copilot-insights", "/copilot?tab=insights", "technician"],
+  ["copilot-log", "/copilot?tab=log", "technician", async (p) => { await p.getByRole("button", { name: "Use sample" }).click(); await clickAndWait(p, p.getByRole("button", { name: /Structure entry/ }), "/api/logbook/parse"); }],
+  ["copilot-qr", "/copilot?tab=qr&serial=ENG-10443", "technician"],
+  ["records-verify", "/records", "auditor", async (p) => clickAndWait(p, p.getByRole("button", { name: "Verify integrity" }), "/api/records/verify")],
   ["fleet-grid", "/fleet", "engineering_officer", async (p) => p.getByRole("radio", { name: "Grid view" }).click()],
 ].filter(([, p]) => !only || p.split("?")[0] === only);
 
