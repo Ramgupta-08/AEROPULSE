@@ -110,7 +110,7 @@ def mission_coverage(mission_id: str, session: Session = Depends(get_session)) -
                     "start_day": b["start_day"],
                     "duration_days": b["duration_days"],
                     "can_move_before": latest >= 0 and b["duration_days"] <= s,
-                    "can_defer_after": latest > e,
+                    "can_defer_after": not b["locked"] and latest > e,
                     "tasks": [x["title"] for x in b["tasks"]],
                 }
             )

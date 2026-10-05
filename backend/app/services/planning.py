@@ -54,6 +54,7 @@ class Task:
     risk: float = 0.0
     critical: bool = False
     elapsed: int = 0  # days the work order has already been open (counts against part lead time)
+    order_day: int = 0  # when the part would arrive through the supply chain alone (no inter-base transfer)
 
     def as_dict(self) -> dict:
         return {k: getattr(self, k) for k in self.__dataclass_fields__}
@@ -208,6 +209,7 @@ def allocate_parts(tasks: list[Task], session: Session, base_names: dict[str, st
         )
         q, eta = orders.get(key, (0, None))
         order_day = (eta - as_of).days if q and eta else None
+        t.order_day = order_day if order_day is not None else max(0, lead - t.elapsed)
         if donors and (order_day is None or order_day > D.TRANSFER_DAYS):
             donor, n = donors[0]
             stock[(t.part_number, donor)] -= 1

@@ -274,3 +274,39 @@ export interface AnomalyRow {
   message: string;
   sensors: AnomalySensor[];
 }
+
+export interface PlanMeta {
+  status: string;
+  objective: number;
+  min_mc: number;
+  solve_seconds: number;
+  mission_aware: boolean;
+  bundling: { window_days: number; visits: number; bundled_tasks: number; groundings_saved: number; downtime_avoided_hours: number };
+  late_visits: number;
+  created_at: string;
+  created_by: string;
+}
+
+export interface PlanSummary {
+  daily_mc: number[];
+  min_mc: number;
+  avg_mc: number;
+  avg_readiness_pct: number;
+  groundings: number;
+  downtime_aircraft_days: number;
+  missions_short: number;
+  missions_total: number;
+  mission_shortfall_aircraft: number;
+  in_service_failures: number;
+  visits: number;
+  missions: { mission_id: string; name: string; required: number; available: number; shortfall: number; worst_day: number; covered: boolean }[];
+}
+
+export interface Compare {
+  horizon_days: number;
+  dates: string[];
+  reactive: PlanSummary;
+  aeropulse: PlanSummary | null;
+  by_type?: Record<string, { reactive: number[]; aeropulse: number[]; demand: number[] }>;
+  delta?: { avg_readiness_pts: number; downtime_avoided_aircraft_days: number; failures_avoided: number; missions_recovered: number; min_mc_gain: number };
+}

@@ -30,6 +30,8 @@ const PAGES = [
   ["health-model", "/health?tab=model", "engineering_officer"],
   ["health-anomalies", "/health?tab=anomalies", "engineering_officer"],
   ["aircraft-drawer", "/aircraft/AP-112", "engineering_officer", async (p) => p.getByRole("button", { name: /^Engine 2:/ }).first().click()],
+  ["whatif-run", "/whatif", "engineering_officer", async (p) => { await p.locator('[data-tour="preset-seal"]').click(); await p.waitForResponse((r) => r.url().includes("/api/whatif/run"), { timeout: 30000 }); }],
+  ["missions-coverage", "/missions?focus=M01", "engineering_officer"],
   ["fleet-grid", "/fleet", "engineering_officer", async (p) => p.getByRole("radio", { name: "Grid view" }).click()],
 ].filter(([, p]) => !only || p.split("?")[0] === only);
 

@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import aircraft, fleet, health, kpi, meta, missions
+from app.api import aircraft, fleet, health, kpi, meta, missions, schedule, whatif
 from app.core.db import init_db
 
 log = logging.getLogger("aeropulse")
@@ -55,5 +55,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (meta.router, fleet.router, aircraft.router, aircraft.ws_router, health.router, kpi.router, missions.router):
+for r in (
+    meta.router,
+    fleet.router,
+    aircraft.router,
+    aircraft.ws_router,
+    health.router,
+    kpi.router,
+    missions.router,
+    schedule.router,
+    whatif.router,
+):
     app.include_router(r)

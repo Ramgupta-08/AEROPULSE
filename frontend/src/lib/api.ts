@@ -49,6 +49,7 @@ export const api = {
     fetch(path, { method: "PATCH", headers: headers({ "Content-Type": "application/json" }), body: JSON.stringify(body) }).then((r) =>
       handle<T>(r),
     ),
+  del: <T>(path: string) => fetch(path, { method: "DELETE", headers: headers() }).then((r) => handle<T>(r)),
   upload: <T>(path: string, form: FormData, params?: Record<string, string>) =>
     fetch(withParams(path, params), { method: "POST", headers: headers(), body: form }).then((r) => handle<T>(r)),
   /** Download a server-generated file (CSV/PDF) with role header and save it. */
