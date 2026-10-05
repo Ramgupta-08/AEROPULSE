@@ -1,6 +1,7 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
+import { DemoButton, GuidedDemo } from "@/features/demo/GuidedDemo";
 import { RoleGate } from "@/components/layout/RoleGate";
 import { SkeletonRows } from "@/components/ui/skeleton";
 
@@ -30,7 +31,7 @@ function page(area: string, el: ReactNode) {
 
 const router = createBrowserRouter([
   {
-    element: <AppShell />,
+    element: <AppShell topBarExtra={<DemoButton />} overlay={<GuidedDemo />} />,
     children: [
       { path: "/", element: page("overview", <Overview />) },
       { path: "/fleet", element: page("fleet", <Fleet />) },

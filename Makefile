@@ -3,7 +3,7 @@ PY      := backend/.venv/bin/python
 UV      := $(shell command -v uv 2>/dev/null)
 NPM     := npm --prefix frontend
 
-.PHONY: dev setup seed train test test-backend test-frontend lint screenshots smoke clean-data
+.PHONY: dev setup seed train test test-backend test-frontend lint screenshots smoke demo clean-data
 
 dev: setup ## Run API (:8000) + web app (:5173); seeds and trains on first run
 	@bash scripts/dev.sh
@@ -42,8 +42,12 @@ lint: setup
 screenshots: setup ## Playwright screenshots of every page at 1440x900 and 390x844
 	@bash scripts/screenshots.sh
 
-smoke: setup ## Playwright smoke test: every route renders with no console errors
+smoke: setup ## Playwright: every route renders with no console errors; every role sees exactly its pages
 	@bash scripts/screenshots.sh --smoke
+	@node frontend/scripts/roles-smoke.mjs
+
+demo: setup ## Run the Guided Demo end-to-end in a headless browser (needs `make dev` running)
+	@node frontend/scripts/demo-run.mjs
 
 clean-data:
 	rm -f data/aeropulse.db data/aeropulse.db-*

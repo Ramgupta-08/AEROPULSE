@@ -48,7 +48,7 @@ def tamper(role: Role = Depends(require("records")), session: Session = Depends(
 def restore(role: Role = Depends(require("records")), session: Session = Depends(get_session)) -> dict:
     t = session.get(Meta, TAMPER_KEY)
     if t is None:
-        raise HTTPException(404, "No tamper demo active")
+        return {"record_id": None, "restored": False}
     d = json.loads(t.value)
     r = session.get(MaintenanceRecord, d["id"])
     for k, v in d["original"].items():

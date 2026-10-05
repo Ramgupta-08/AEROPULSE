@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FlaskConical, Play, Plus, Save, Trash2, Truck, TriangleAlert, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Chart } from "@/components/charts/Chart";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -244,7 +245,7 @@ function ReadinessChart({ dates, lines, demand }: { dates: string[]; lines: { na
           grid: { left: 8, right: 16, top: 30, bottom: 8, containLabel: true },
           legend: { top: 0, left: 0, itemWidth: 14, itemHeight: 2, textStyle: { color: tokenColor("subtle") } },
           tooltip: { ...(b.tooltip as object), valueFormatter: (v: unknown) => `${v} aircraft` },
-          xAxis: { ...(b.xAxis as object), type: "category", boundaryGap: false, data: dates.map((d) => fmt.shortDate(d)), axisLabel: { color: tokenColor("subtle"), interval: 4 } },
+          xAxis: { ...(b.xAxis as object), type: "category", boundaryGap: false, data: dates.map((d) => fmt.shortDate(d)), axisLabel: { color: tokenColor("subtle"), hideOverlap: true } },
           yAxis: { ...(b.yAxis as object), type: "value", scale: true, minInterval: 1 },
           series: [
             ...lines.map((l) => ({
@@ -406,6 +407,18 @@ export default function WhatIfPage() {
     },
   });
   const compared = (saved ?? []).filter((s) => compare.includes(s.id));
+  const [params] = useSearchParams();
+  const autoRan = useRef<string | null>(null);
+  useEffect(() => {
+    const p = params.get("preset");
+    const preset = p === "seal" ? PRESETS[0] : null;
+    if (preset && autoRan.current !== p) {
+      autoRan.current = p;
+      setActions(preset.actions);
+      setName(preset.label);
+      run.mutate(preset.actions);
+    }
+  }, [params, run]);
 
   return (
     <>

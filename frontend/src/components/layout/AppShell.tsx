@@ -1,8 +1,10 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { Play } from "lucide-react";
 import { useEffect, useMemo, type ReactNode } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { NAV } from "@/app/nav";
+import { useDemo } from "@/features/demo/GuidedDemo";
 import { api } from "@/lib/api";
 import { useHotkeys } from "@/lib/hotkeys";
 import { useMeta } from "@/lib/queries";
@@ -27,6 +29,10 @@ function PaletteAircraft() {
   useEffect(() => {
     setAircraft(allowed && data ? data.map((a) => ({ tail: a.tail, type: a.type, base: a.base_name })) : []);
   }, [allowed, data, setAircraft]);
+  const setActions = usePaletteExtras((s) => s.setActions);
+  useEffect(() => {
+    setActions([{ id: "demo", label: "Start guided demo", icon: Play, run: () => useDemo.getState().start() }]);
+  }, [setActions]);
   return null;
 }
 

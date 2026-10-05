@@ -171,16 +171,17 @@ def reset(role: Role = Depends(require("schedule_write")), session: Session = De
     m = session.get(Meta, "plan")
     if m:
         session.delete(m)
-    append(
-        session,
-        actor=DEMO_USERS[role],
-        role=role.value,
-        action="schedule.reset",
-        entity_type="plan",
-        entity_id=PLAN,
-        summary=f"Plan cleared ({n} visits)",
-        payload={"visits_removed": n},
-    )
+    if n:
+        append(
+            session,
+            actor=DEMO_USERS[role],
+            role=role.value,
+            action="schedule.reset",
+            entity_type="plan",
+            entity_id=PLAN,
+            summary=f"Plan cleared ({n} visits)",
+            payload={"visits_removed": n},
+        )
     session.commit()
     return {"removed": n}
 

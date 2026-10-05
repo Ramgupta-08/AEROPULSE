@@ -95,11 +95,12 @@ def themes(session: Session, k: int = 14) -> dict:
         monthly = Counter(m.date.year * 12 + m.date.month - 1 for m in members)
         recent = sum(1 for m in members if m.date > as_of - timedelta(days=90))
         prior = sum(1 for m in members if as_of - timedelta(days=180) < m.date <= as_of - timedelta(days=90))
-        kind = kinds.most_common(1)[0][0]
+        kind, top_n = kinds.most_common(1)[0]
+        prefix = D.KIND_LABEL.get(kind, kind) if top_n >= 0.7 * len(members) else "Cross-system"
         out.append(
             {
                 "id": c,
-                "label": f"{D.KIND_LABEL.get(kind, kind)} · {', '.join(top[:3])}",
+                "label": f"{prefix} · {', '.join(top[:3])}",
                 "top_terms": top,
                 "size": len(members),
                 "component_kind": kind,

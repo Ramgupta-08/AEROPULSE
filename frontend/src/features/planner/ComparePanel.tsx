@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Chart } from "@/components/charts/Chart";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Segmented } from "@/components/ui/segmented";
-import { baseChart, tokenColor } from "@/lib/echartsTheme";
+import { baseChart, isNarrow, tokenColor } from "@/lib/echartsTheme";
 import { fmt } from "@/lib/format";
 import type { Compare } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -57,9 +57,9 @@ export function ComparePanel({ data }: { data: Compare }) {
               const x = data.dates.map((v) => fmt.shortDate(v));
               return {
                 ...b,
-                grid: { left: 8, right: 96, top: 28, bottom: 8, containLabel: true },
+                grid: { left: 8, right: isNarrow() ? 12 : 96, top: 28, bottom: 8, containLabel: true },
                 legend: { top: 0, left: 0, itemWidth: 14, itemHeight: 2, textStyle: { color: tokenColor("subtle") }, data: ["Reactive", "AeroPulse", ...(series?.demand ? ["Mission demand"] : [])] },
-                xAxis: { ...(b.xAxis as object), type: "category", data: x, boundaryGap: false, axisLabel: { color: tokenColor("subtle"), interval: 4 } },
+                xAxis: { ...(b.xAxis as object), type: "category", data: x, boundaryGap: false, axisLabel: { color: tokenColor("subtle"), hideOverlap: true } },
                 yAxis: { ...(b.yAxis as object), type: "value", minInterval: 1, scale: true },
                 tooltip: { ...(b.tooltip as object), valueFormatter: (v: unknown) => `${v} aircraft` },
                 series: [
@@ -70,7 +70,7 @@ export function ComparePanel({ data }: { data: Compare }) {
                     symbol: "none",
                     lineStyle: { width: 2, color: tokenColor("subtle") },
                     itemStyle: { color: tokenColor("subtle") },
-                    endLabel: { show: true, formatter: "Reactive {c}", color: tokenColor("subtle"), fontSize: 12 },
+                    endLabel: { show: !isNarrow(), formatter: "Reactive {c}", color: tokenColor("subtle"), fontSize: 12 },
                   },
                   {
                     name: "AeroPulse",
@@ -80,7 +80,7 @@ export function ComparePanel({ data }: { data: Compare }) {
                     lineStyle: { width: 2.5, color: tokenColor("accent") },
                     itemStyle: { color: tokenColor("accent") },
                     areaStyle: { color: tokenColor("accent", 0.08) },
-                    endLabel: { show: true, formatter: "AeroPulse {c}", color: tokenColor("body"), fontSize: 12 },
+                    endLabel: { show: !isNarrow(), formatter: "AeroPulse {c}", color: tokenColor("body"), fontSize: 12 },
                   },
                   ...(series?.demand
                     ? [

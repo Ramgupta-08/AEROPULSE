@@ -1,5 +1,5 @@
 import type { EChartsOption } from "echarts";
-import { baseChart, tokenColor } from "@/lib/echartsTheme";
+import { baseChart, isNarrow, tokenColor } from "@/lib/echartsTheme";
 import { fmt } from "@/lib/format";
 import type { ForecastSeries } from "@/lib/types";
 import { Chart } from "./Chart";
@@ -44,7 +44,7 @@ export function ForecastChart({
         const maxY = Math.max(series.total, ...series.demand) + 2;
         const opt: EChartsOption = {
           ...base,
-          grid: { left: 8, right: 92, top: 18, bottom: 8, containLabel: true },
+          grid: { left: 8, right: isNarrow() ? 12 : 92, top: 18, bottom: 8, containLabel: true },
           legend: {
             top: 0,
             right: 0,
@@ -69,7 +69,7 @@ export function ForecastChart({
               return rows.filter(Boolean).join("<br/>");
             },
           },
-          xAxis: { ...(base.xAxis as object), type: "category", data: x, boundaryGap: false, axisLabel: { color: tokenColor("subtle"), interval: 4 } },
+          xAxis: { ...(base.xAxis as object), type: "category", data: x, boundaryGap: false, axisLabel: { color: tokenColor("subtle"), hideOverlap: true } },
           yAxis: { ...(base.yAxis as object), type: "value", min: 0, max: maxY, minInterval: 1 },
           series: [
             { name: "band-low", type: "line", data: series.low, stack: "band", symbol: "none", lineStyle: { opacity: 0 }, silent: true, tooltip: { show: false } },
@@ -90,7 +90,7 @@ export function ForecastChart({
               symbol: "none",
               lineStyle: { width: 2, color: accent },
               itemStyle: { color: accent },
-              endLabel: { show: true, formatter: `{c} ready`, color: tokenColor("body"), fontSize: 12 },
+              endLabel: { show: !isNarrow(), formatter: `{c} ready`, color: tokenColor("body"), fontSize: 12 },
               markArea: {
                 silent: true,
                 itemStyle: { color: tokenColor("grounded", 0.12) },
@@ -106,7 +106,7 @@ export function ForecastChart({
               symbol: "none",
               lineStyle: { width: 1.5, type: "dashed", color: tokenColor("strong", 0.7) },
               itemStyle: { color: tokenColor("strong", 0.7) },
-              endLabel: { show: true, formatter: "{c} needed", color: tokenColor("subtle"), fontSize: 12 },
+              endLabel: { show: !isNarrow(), formatter: "{c} needed", color: tokenColor("subtle"), fontSize: 12 },
             },
             ...(compare
               ? [

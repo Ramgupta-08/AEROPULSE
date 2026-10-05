@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Fingerprint, Link2, RotateCcw, ShieldAlert, ShieldCheck, Skull } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -94,6 +95,12 @@ export default function RecordsPage() {
       verify.refetch();
     },
   });
+  const [params] = useSearchParams();
+  const auto = params.get("verify");
+  const { refetch } = verify;
+  useEffect(() => {
+    if (auto) refetch();
+  }, [auto, refetch]);
   const v = verify.data;
   const tampered = status.data?.tamper_demo_active;
 

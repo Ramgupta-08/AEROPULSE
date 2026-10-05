@@ -1,8 +1,8 @@
 import * as Slider from "@radix-ui/react-slider";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarRange, History, Plane, Wrench } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -45,7 +45,12 @@ export default function AircraftPage() {
   const { data: a, isLoading, error } = useAircraft(tail);
   const { data: series } = useQuery({ queryKey: ["twin-series", tail], queryFn: () => api.get<Series>(`/api/aircraft/${tail}/twin/series`), enabled: !!a });
   const [offset, setOffset] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
+  const [params] = useSearchParams();
+  const [selected, setSelected] = useState<number | null>(params.get("component") ? Number(params.get("component")) : null);
+  useEffect(() => {
+    const c = params.get("component");
+    if (c) setSelected(Number(c));
+  }, [params]);
 
   // Recolour the twin from the precomputed health series as the slider moves.
   const timeline = useMemo(() => {

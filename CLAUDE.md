@@ -21,6 +21,7 @@ confidence, and plan maintenance around missions so the maximum number of aircra
 | `make test` | ruff + pytest, then `tsc`, ESLint, Vitest |
 | `make screenshots` | Playwright screenshots of every page (1440×900, 390×844, dark + light) → `frontend/screenshots/` |
 | `make smoke` | Playwright: every route renders, no console errors, no horizontal overflow |
+| `make demo` | Runs the 8-step Guided Demo end-to-end (app must be running) and screenshots each step |
 
 Backend venv: `backend/.venv` (created with `uv`). Run single tests with `cd backend && .venv/bin/python -m pytest -q tests/test_x.py`.
 
@@ -45,6 +46,12 @@ frontend/src/
   styles/tokens.css  ALL colours as RGB-triplet CSS variables, dark + light
 data/cmapss/         NASA C-MAPSS raw files (downloaded by seed/train; synthetic fallback if unavailable)
 ```
+
+## Guided demo
+`frontend/src/features/demo/GuidedDemo.tsx` drives the judge story. Each step sets a role, calls the API to prepare
+state (resets plan / tamper demo first, so it is repeatable), navigates via deep links (`/aircraft/:tail?component=`,
+`/whatif?preset=seal`, `/copilot?tab=ask&q=`, `/records?verify=`) and spotlights a `data-tour="…"` target. Keep those
+attributes and deep links working when editing pages.
 
 ## Rules
 - **Roles are enforced on the API**: every router uses `Depends(require("<area>"))` from `app/core/auth.py`.

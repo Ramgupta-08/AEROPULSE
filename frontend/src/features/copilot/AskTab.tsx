@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { BookOpen, ChevronDown, Cpu, History, SendHorizontal, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
@@ -121,6 +122,7 @@ export function AskTab() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const end = useRef<HTMLDivElement>(null);
+  const lastTurn = useRef<HTMLDivElement>(null);
   const ask = useMutation({
     mutationFn: (question: string) => api.post<CopilotAnswer>("/api/copilot/ask", { question }),
     onSuccess: (a) => setTurns((t) => t.map((x, i) => (i === t.length - 1 ? { ...x, a } : x))),
@@ -129,7 +131,8 @@ export function AskTab() {
       toast.error("Copilot unavailable", String(e));
     },
   });
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth", block: "end" }), [turns, ask.isPending]);
+  // Bring the newest question + answer into view from its start (long answers stay readable).
+  useEffect(() => lastTurn.current?.scrollIntoView({ behavior: "smooth", block: "start" }), [turns, ask.isPending]);
   const send = (text: string) => {
     const t = text.trim();
     if (t.length < 3 || ask.isPending) return;
@@ -137,6 +140,16 @@ export function AskTab() {
     setQ("");
     ask.mutate(t);
   };
+  const [params] = useSearchParams();
+  const asked = useRef<string | null>(null);
+  useEffect(() => {
+    const auto = params.get("q");
+    if (auto && asked.current !== auto) {
+      asked.current = auto;
+      send(auto);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
   const cite = (id: string) => {
     setOpen(id);
     setTimeout(() => document.getElementById(`src-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
@@ -162,7 +175,7 @@ export function AskTab() {
           </div>
         )}
         {turns.map((t, i) => (
-          <div key={i} className="space-y-3">
+          <div key={i} ref={i === turns.length - 1 ? lastTurn : undefined} className="scroll-mt-20 space-y-3">
             <div className="ml-auto w-fit max-w-[85%] rounded-card rounded-br-sm bg-accent px-3.5 py-2 text-sm text-accent-fg">{t.q}</div>
             {t.a ? (
               <div className="card space-y-4 p-4" data-tour={i === 0 ? "copilot-answer" : undefined}>

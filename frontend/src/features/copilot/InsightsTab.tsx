@@ -60,11 +60,11 @@ export function InsightsTab() {
       </Card>
       <Card>
         <CardHeader title="Recurring-fault themes" subtitle="TF-IDF + k-means clustering of defect narratives · monthly reports over the last 12 months" />
-        <div className="grid gap-px bg-border sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3">
           {data.themes.map((t) => {
             const change = t.prior_90d ? Math.round((100 * (t.recent_90d - t.prior_90d)) / t.prior_90d) : null;
             return (
-              <div key={t.id} className="bg-surface p-4">
+              <div key={t.id} className="border-b border-border p-4 sm:border-r">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium text-strong">{t.label}</p>
                   <span className="shrink-0 text-xs text-subtle tnum">{t.size}</span>

@@ -85,7 +85,7 @@ export function ComponentDrawer({ tail, componentId, onClose }: { tail: string; 
       {isLoading || !c ? (
         <SkeletonRows rows={10} />
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-5" data-tour="component-drawer">
           <div className="flex flex-wrap items-start gap-4">
             <div className="min-w-0 flex-1">
               <p className="label">Remaining useful life</p>

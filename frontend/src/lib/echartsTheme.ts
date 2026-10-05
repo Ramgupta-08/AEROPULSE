@@ -30,7 +30,7 @@ export function baseChart(): EChartsOption {
     xAxis: {
       axisLine: { lineStyle: { color: grid } },
       axisTick: { show: false },
-      axisLabel: { color: subtle, fontSize: 12 },
+      axisLabel: { color: subtle, fontSize: 12, hideOverlap: true },
       splitLine: { show: false },
     },
     yAxis: {
@@ -43,3 +43,6 @@ export function baseChart(): EChartsOption {
 }
 
 export const STATUS_TOKEN = { ready: "ready", caution: "caution", grounded: "grounded" } as const;
+
+/** Narrow containers (phones) drop end-of-line labels; the legend and tooltip still identify series. */
+export const isNarrow = () => typeof window !== "undefined" && window.innerWidth < 640;
