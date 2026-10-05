@@ -1,0 +1,41 @@
+/* AeroPulse design tokens. Values are RGB triplets so Tailwind can apply alpha (e.g. bg-ready/12). */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: 11 14 19; /* #0B0E13 */
+  --surface: 17 21 28; /* #11151C */
+  --raised: 22 27 36; /* #161B24 */
+  --border: 35 42 54; /* #232A36 */
+  --border-strong: 48 57 72; /* #303948 */
+  --subtle: 138 148 166; /* #8A94A6 */
+  --body: 201 209 220; /* #C9D1DC */
+  --strong: 242 245 249; /* #F2F5F9 */
+  --accent: 76 141 255; /* #4C8DFF */
+  --accent-fg: 255 255 255;
+  --ready: 47 191 113; /* #2FBF71 */
+  --caution: 242 179 61; /* #F2B33D */
+  --grounded: 229 72 77; /* #E5484D */
+  --info: 90 169 230; /* #5AA9E6 */
+  --chart-grid: 35 42 54;
+  --focus: 76 141 255;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: 246 247 249; /* #F6F7F9 */
+  --surface: 255 255 255; /* #FFFFFF */
+  --raised: 241 243 246; /* #F1F3F6 */
+  --border: 227 231 237; /* #E3E7ED */
+  --border-strong: 205 211 221; /* #CDD3DD */
+  --subtle: 91 101 119; /* #5B6577 — 5.6:1 on white */
+  --body: 42 52 68; /* #2A3444 */
+  --strong: 15 23 42; /* #0F172A */
+  --accent: 47 111 224; /* #2F6FE0 — 4.7:1 on white */
+  --accent-fg: 255 255 255;
+  --ready: 24 135 76; /* #18874C */
+  --caution: 168 106 10; /* #A86A0A */
+  --grounded: 200 40 46; /* #C8282E */
+  --info: 30 118 184; /* #1E76B8 */
+  --chart-grid: 227 231 237;
+  --focus: 47 111 224;
+}
