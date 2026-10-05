@@ -1,5 +1,5 @@
+from datetime import UTC, datetime
 from datetime import date as Date
-from datetime import datetime
 
 from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
@@ -19,11 +19,13 @@ class MaintenanceRecord(SQLModel, table=True):
     narrative: str
     action_taken: str
     man_hours: float
+    downtime_days: float = 0  # aircraft not mission-capable for this many days from `date`
+    aog: bool = False  # aircraft-on-ground awaiting parts
     parts_used: list[str] = Field(default_factory=list, sa_column=Column(JSON))
     batch: str | None = Field(default=None, index=True)
     technician: str
     agency_id: str | None = Field(default=None, foreign_key="agency.id")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class PredictionFeedback(SQLModel, table=True):
@@ -34,4 +36,21 @@ class PredictionFeedback(SQLModel, table=True):
     predicted_p50: float
     note: str = ""
     user: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+class WorkOrder(SQLModel, table=True):
+    """Open maintenance work currently keeping an aircraft on the ground."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    tail: str = Field(foreign_key="aircraft.tail", index=True)
+    component_id: int | None = Field(default=None, foreign_key="component.id")
+    title: str
+    kind: str  # phase-inspection | defect | aog | engine-change | corrosion
+    trade: str  # engine | airframe | avionics
+    status: str  # in-work | awaiting-part | awaiting-slot
+    opened_on: Date
+    remaining_days: int
+    man_hours: float
+    part_number: str | None = None
+    record_id: int | None = Field(default=None, foreign_key="maintenancerecord.id")

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 from sqlmodel import Field, SQLModel
 
@@ -55,4 +55,4 @@ class CannibalisationAction(SQLModel, table=True):
     status: str = "approved"  # approved | replaced
     approved_by: str
     replacement_eta: date | None = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

@@ -1,8 +1,3 @@
-from datetime import date
-
-from app.models import Aircraft, Base, Squadron
-
-
 def test_ping(client):
     r = client.get("/api/ping")
     assert r.status_code == 200
@@ -23,24 +18,10 @@ def test_unknown_role_rejected(client):
     assert client.get("/api/meta", headers={"X-Role": "intruder"}).status_code == 401
 
 
-def test_bases_readiness(client, session):
-    session.add(Base(id="GWL", name="Gwalior", lat=26.2, lon=78.2, environment="semi-arid", hangar_bays=4))
-    session.add(Squadron(id="S1", name="Squadron Kestrel", base_id="GWL", aircraft_type="Fighter Type-A"))
-    for i, st in enumerate(["ready", "ready", "caution", "grounded"]):
-        session.add(
-            Aircraft(
-                tail=f"AP-10{i}",
-                type="Fighter Type-A",
-                base_id="GWL",
-                squadron_id="S1",
-                sortie_profile="air-defence",
-                status=st,
-                entered_service=date(2015, 1, 1),
-            )
-        )
-    session.commit()
-    r = client.get("/api/bases")
-    assert r.status_code == 200
-    (b,) = r.json()
-    assert (b["ready"], b["caution"], b["grounded"], b["readiness_pct"]) == (2, 1, 1, 75.0)
-    assert client.get("/api/bases/XXX").status_code == 404
+def test_bases_readiness(fleet_client):
+    bases = fleet_client.get("/api/bases").json()
+    assert len(bases) == 8
+    assert sum(b["aircraft"] for b in bases) == 60
+    gwl = next(b for b in bases if b["id"] == "GWL")
+    assert gwl["readiness_pct"] == round(100 * (gwl["ready"] + gwl["caution"]) / gwl["aircraft"], 1)
+    assert fleet_client.get("/api/bases/XXX").status_code == 404

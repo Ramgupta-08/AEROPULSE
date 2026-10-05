@@ -1,17 +1,38 @@
 from __future__ import annotations
 
+import logging
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import fleet, meta
+from app.api import aircraft, fleet, health, kpi, meta
 from app.core.db import init_db
+
+log = logging.getLogger("aeropulse")
+
+
+def _warm_caches() -> None:
+    """Build engine tracks (feature windows + quantile predictions) once, off the request path."""
+    from sqlmodel import Session
+
+    from app.core.db import get_engine
+    from app.services import health, rul
+
+    if not rul.models_ready():
+        return
+    try:
+        with Session(get_engine()) as s:
+            health.fleet(s)
+    except Exception:  # pragma: no cover - empty or unseeded database
+        log.warning("Cache warm-up skipped (database not seeded?)")
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     init_db()
+    threading.Thread(target=_warm_caches, daemon=True).start()
     yield
 
 
@@ -31,5 +52,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (meta.router, fleet.router):
+for r in (meta.router, fleet.router, aircraft.router, aircraft.ws_router, health.router, kpi.router):
     app.include_router(r)

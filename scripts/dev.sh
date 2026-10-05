@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 PY=backend/.venv/bin/python
-if [ -f backend/app/ml/train_rul.py ] && [ ! -f backend/app/ml/artifacts/metrics.json ]; then
+if [ -f backend/app/ml/train_rul.py ] && [ ! -f backend/app/ml/artifacts/rul_FD001.joblib ]; then
   echo "▸ First run: training RUL models (one-off)"
   (cd backend && .venv/bin/python -m app.ml.train_rul)
 fi

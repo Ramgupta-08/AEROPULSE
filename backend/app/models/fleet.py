@@ -1,5 +1,6 @@
 from datetime import date
 
+from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
 
 
@@ -63,4 +64,6 @@ class Component(SQLModel, table=True):
     cmapss_unit: int | None = None
     cmapss_cycle: int | None = None
     cmapss_split: str | None = None  # train | test
+    # Planted unknown-fault signature for demo realism: {sensor: {kind: drift|noise, sigma, cycles}}
+    telemetry_injection: dict | None = Field(default=None, sa_column=Column(JSON))
     robbed: bool = False

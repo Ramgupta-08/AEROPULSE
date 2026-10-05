@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlmodel import Session, func, select
+from sqlmodel import Session, select
 
 from app.core.auth import require
 from app.core.db import get_session
-from app.models import Aircraft, Base
+from app.models import Base
+from app.services import health as H
 
 router = APIRouter(prefix="/api", tags=["fleet"])
 
@@ -28,11 +29,9 @@ class BaseOut(BaseModel):
 @router.get("/bases", response_model=list[BaseOut], dependencies=[Depends(require("shared"))])
 def list_bases(session: Session = Depends(get_session)) -> list[BaseOut]:
     counts: dict[tuple[str, str], int] = {}
-    rows = session.exec(
-        select(Aircraft.base_id, Aircraft.status, func.count()).group_by(Aircraft.base_id, Aircraft.status)
-    )
-    for base_id, st, n in rows:
-        counts[(base_id, st)] = n
+    for ah in H.fleet(session):
+        key = (ah.aircraft.base_id, ah.status)
+        counts[key] = counts.get(key, 0) + 1
     out = []
     for b in session.exec(select(Base).order_by(Base.name)).all():
         r, c, g = (counts.get((b.id, s), 0) for s in ("ready", "caution", "grounded"))
